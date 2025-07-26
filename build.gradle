@@ -3,6 +3,20 @@ plugins {
     id 'java-library'
 }
 
+
+allprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    sourceCompatibility = 1.17
+    // This allows you to "Build and run using IntelliJ IDEA", an option in IDEA's Settings.
+    idea {
+        module {
+            outputDir file('build/classes/java/main')
+            testOutputDir file('build/classes/java/test')
+        }
+    }
+}
+
 group = 'jwadlib'
 version = '1.0.1'
 

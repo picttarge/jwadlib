@@ -21,11 +21,14 @@
  */
 package jwadlib;
 
+import com.badlogic.gdx.files.FileHandle;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The {@link Wad Wad} class is used to virtually open WAD files.  It allows for the manipulation of a WAD file on the Java platform.
@@ -35,25 +38,18 @@ import java.util.LinkedList;
  * @since 1.0
  */
 public class Wad {
-    //Private Variables
-    /**
-     * The WAD file as a {@link java.io.File File}.
-     * @since 1.0
-     */
-    private File wadfilelocation;
-    
     /**
      * The WAD file as a {@link java.io.RandomAccessFile RandomAccessFile}.
      * @since 1.0
      */
-    private RandomAccessFile wadfile;
+    private final RandomAccessFile wadfile;
     
     /**
      * The {@link java.nio.channels.FileChannel FileChannel} associated with the 
      * {@link #wadfile WAD file}.
      * @since 1.0
      */
-    private FileChannel wadfilechannel;
+    private final FileChannel wadfilechannel;
     
     //Protected Variables
     /**
@@ -69,7 +65,6 @@ public class Wad {
      */
     protected int identifier;
     
-    //Constructors
     /**
      * Creates a {@link Wad Wad} object from a wad file as specified from the filepath.
      * @param filepath the location of the wad file including the name and extension.
@@ -77,8 +72,19 @@ public class Wad {
      * @throws jwadlib.UnableToReadWADFileException if the WAD file cannot be read.
      * @since 1.0
      */ 
-    public Wad(String filepath) throws FileNotFoundException, UnableToReadWADFileException {
+    public Wad(final String filepath) throws FileNotFoundException, UnableToReadWADFileException {
         this(new File(filepath));
+    }
+
+    /**
+     * Creates a {@link Wad Wad} object from a wad file as specified from the libGDX FileHandle.
+     * @param fileHandle the libGDX FileHandle location of the wad file including the name and extension.
+     * @throws java.io.FileNotFoundException if the WAD file cannot be found.
+     * @throws jwadlib.UnableToReadWADFileException if the WAD file cannot be read.
+     * @since 1.0.1
+     */
+    public Wad(final FileHandle fileHandle) throws FileNotFoundException, UnableToReadWADFileException {
+        this(fileHandle.file());
     }
     
     /**
@@ -89,63 +95,30 @@ public class Wad {
      * @throws jwadlib.UnableToReadWADFileException if the WAD file cannot be read.
      * @since 1.0
      */
-    public Wad(File file) throws FileNotFoundException, UnableToReadWADFileException {
-        wadfilelocation = file;
+    public Wad(final File file) throws FileNotFoundException, UnableToReadWADFileException {
         wadfile = new RandomAccessFile(file, "r");
         wadfilechannel = wadfile.getChannel();
 
-        WadByteBuffer header = new WadByteBuffer(wadfilechannel, 12, 0);
+        final WadByteBuffer header = new WadByteBuffer(wadfilechannel, 12, 0);
         identifier = header.getInt(0);
-        WadByteBuffer directory = new WadByteBuffer(wadfilechannel, header.getInt(4)*16, header.getInt(8));
+        final WadByteBuffer directory = new WadByteBuffer(wadfilechannel, header.getInt(4)*16, header.getInt(8));
         lumps = new LinkedList<>();
         
         //Adds all of the lumps in the WAD file to the Wad object's LinkedList of lump objects.
         for(int i=0; i<header.getInt(4); i++) {
-            int pointer = directory.getInt();
-            int size = directory.getInt();
-            String name = directory.getEightByteString();
+            final int pointer = directory.getInt();
+            final int size = directory.getInt();
+            final String name = directory.getEightByteString();
             
             /* This should never occur because a basic Lump's initialization 
              * method always will return true.
              */
             try {
                 lumps.add(new Lump(name, size, wadfilechannel, pointer));
-            } catch(UnableToInitializeLumpException e) {
+            } catch(final UnableToInitializeLumpException e) {
                 throw new UnableToReadWADFileException("A lump in the WAD file could not be intialized.", e);
             }
         }
-    }
-    
-    //Private Methods
-    /**
-     * Returns a {@link WadByteBuffer WadByteBuffer} containing the directory.
-     * @return the {@link WadByteBuffer WadByteBuffer} containing the directory.
-     * @since 1.0
-     */
-    private WadByteBuffer buildDirectory() {
-        int directorylength = 16*lumps.size();
-        int directorystart = 12;
-        
-        /* The lumpitr controls the pointer to the next lump.
-         * Every directory entry has a pointer to the lump being referenced and
-         * this var keeps track of where the next lump in the list will begin at.
-         */
-        int lumpitr = directorystart+directorylength;
-        WadByteBuffer directory = new WadByteBuffer(directorylength);
-        Lump current;
-        
-        /* Runs through each lump in the list and writes a directory entry to the 
-         * directory buffer for each. Also, it sets the lumpitr's position for the 
-         * next lump pointer.
-         */
-        for(int i=0; i<lumps.size(); i++) {
-            current = lumps.get(i);
-            directory.putInt(lumpitr);
-            directory.putInt(current.getSize());
-            directory.putEightByteString(current.getName());
-            lumpitr += current.getSize();
-        }
-        return directory;
     }
     
     //Public Methods
@@ -194,7 +167,7 @@ public class Wad {
      * {@link Lump Lump} in the WAD.
      * @since 1.0
      */
-    public LinkedList<Lump> getAllLumps() {
+    public List<Lump> getAllLumps() {
         return lumps;
     }
     
@@ -204,7 +177,7 @@ public class Wad {
      * @return true if the {@link Lump Lump} is successfully added.
      * @since 1.0
      */
-    public boolean addLump(Lump lump) {
+    public boolean addLump(final Lump lump) {
         lumps.add(lump);
         return true;
     }

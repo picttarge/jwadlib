@@ -21,10 +21,6 @@
  */
 package jwadlib;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 /**
@@ -58,7 +54,7 @@ public class Lump {
      * {@link #initialize() initialize()} method returns false.
      * @since 1.0
      */
-    public Lump(String name) throws UnableToInitializeLumpException {
+    public Lump(final String name) throws UnableToInitializeLumpException {
         this(name, 0);
     }
     
@@ -70,7 +66,7 @@ public class Lump {
      * {@link #initialize() initialize()} method returns false.
      * @since 1.0
      */
-    public Lump(String name, int size) throws UnableToInitializeLumpException {
+    public Lump(final String name, final int size) throws UnableToInitializeLumpException {
         this.name = WadByteBuffer.convertToEightByteString(name);
         content = new WadByteBuffer(size);
         if(!initialize()) {
@@ -86,7 +82,7 @@ public class Lump {
      * {@link #initialize() initialize()} method returns false.
      * @since 1.0
      */
-    public Lump(String name, byte[] data) throws UnableToInitializeLumpException {
+    public Lump(final String name, final byte[] data) throws UnableToInitializeLumpException {
         this(name, new WadByteBuffer(data));
     }
     
@@ -99,7 +95,7 @@ public class Lump {
      * {@link #initialize() initialize()} method returns false.
      * @since 1.0
      */
-    public Lump(String name, WadByteBuffer data) throws UnableToInitializeLumpException {
+    public Lump(final String name, final WadByteBuffer data) throws UnableToInitializeLumpException {
         this.name = WadByteBuffer.convertToEightByteString(name);
         content = data;
         if(!initialize()) {
@@ -126,7 +122,7 @@ public class Lump {
      * @throws jwadlib.UnableToReadWADFileException if the WAD file cannot be read.
      * @since 1.0
      */
-    public Lump(String name, int size, FileChannel filechannel, int pointer) throws UnableToInitializeLumpException, UnableToReadWADFileException {
+    public Lump(final String name, final int size, final FileChannel filechannel, final int pointer) throws UnableToInitializeLumpException, UnableToReadWADFileException {
         this.name = WadByteBuffer.convertToEightByteString(name);
         if(size == 0) {
             content = new WadByteBuffer(0);
@@ -230,7 +226,7 @@ public class Lump {
      * @param name the new name as a {@link java.lang.String String}.
      * @since 1.0
      */
-    public void changeName(String name) {
+    public void changeName(final String name) {
         this.name = WadByteBuffer.convertToEightByteString(name);
     }
     
@@ -240,7 +236,7 @@ public class Lump {
      * @return true when the lump data is updated.
      * @since 1.0
      */
-    public boolean alterRawLumpData(byte[] data) {
+    public boolean alterRawLumpData(final byte[] data) {
         return alterRawLumpData(new WadByteBuffer(data));
     }
     
@@ -251,7 +247,7 @@ public class Lump {
      * @return true when the lump data is updated.
      * @since 1.0
      */
-    public boolean alterRawLumpData(WadByteBuffer data) {
+    public boolean alterRawLumpData(final WadByteBuffer data) {
         content = data;
         content.setPosition(0);
         return true;
@@ -263,7 +259,7 @@ public class Lump {
      * @return true if completed successfully.
      * @since 1.0
      */
-    public boolean appendRawLumpData(byte[] data) {
+    public boolean appendRawLumpData(final byte[] data) {
         return appendRawLumpData(new WadByteBuffer(data));
     }
     
@@ -273,117 +269,12 @@ public class Lump {
      * @return true if completed successfully.
      * @since 1.0
      */
-    public boolean appendRawLumpData(WadByteBuffer data) {
+    public boolean appendRawLumpData(final WadByteBuffer data) {
         content.alterBufferSize(content.getLength()+data.getLength());
         content.put(data);
         return true;
     }
-    
-    /**
-     * Writes the {@link Lump Lump} to a binary file with the {@link Lump Lump's} name and 
-     * the extension ".lmp".
-     * @param directory the directory to write the lump file to.
-     * @return true if completed successfully.
-     * @throws jwadlib.UnableToWriteLumpFileException if the lump file cannot be written to.
-     * @since 1.0
-     */
-    public boolean writeToFile(File directory) throws UnableToWriteLumpFileException {
-        return writeToFile(directory, name);
-    }
-    
-    /**
-     * Writes the {@link Lump Lump} to a binary file with a custom name and the extension 
-     * ".lmp".
-     * @param directory the directory to write the lump file to.
-     * @param filename the filename of the lump. Do not include an extension, the 
-     * extension will be ".lmp".
-     * @return true if completed successfully.
-     * @throws jwadlib.UnableToWriteLumpFileException if the lump file cannot be written to.
-     * @since 1.0
-     */
-    public boolean writeToFile(File directory, String filename) throws UnableToWriteLumpFileException {
-        if(!directory.isDirectory()) {
-            throw new UnableToWriteLumpFileException("Invalid directory.");
-        }
-        
-        //Gets rid of null characters that pad 8 byte string name.
-        filename = filename.replace("\\x00", "");
-        
-        //Replaces possible illegal filename characters that are allowed in lump names.
-        filename = filename.replaceAll("[\\[\\]\\\\]", "_");
-        File temp = new File(directory.getPath(), filename+".lmp");
-        
-        //START: Numeric filename extending.
-        /* This adds a numeric extension to the filename so that it won't overwrite 
-         * anything and can exist in the same directory with previous incarnations.
-         */
-        int numericextension=2;
-        while(temp.exists()) {
-            temp = new File(directory, filename+".lmp"+"."+numericextension);
-            numericextension++;
-        }
-        //END: Numeric filename extending.
-        
-        RandomAccessFile raf;
-        try {
-            raf = new RandomAccessFile(temp, "rw");
-        }
-        catch(FileNotFoundException e) {
-            throw new UnableToWriteLumpFileException("Random Access File could not be created.", e);
-        }
-        return writeToFile(raf);
-    }
-    
-    /**
-     * Writes the {@link Lump Lump} to a binary file.
-     * @param file the {@link java.io.RandomAccessFile RandomAccessFile} to write to.
-     * @return true if the file has been successfully written to.
-     * @throws UnableToWriteLumpFileException if the specified file cannot be written to.
-     * @since 1.0
-     */
-    public boolean writeToFile(RandomAccessFile file) throws UnableToWriteLumpFileException {
-        return writeToFile(file.getChannel());
-    }
-    
-    /**
-     * Writes the {@link Lump Lump} to a binary file.
-     * @param filechannel the {@link java.nio.channels.FileChannel FileChannel} to write to.
-     * @return true if the file has been successfully written to.
-     * @throws UnableToWriteLumpFileException if the specified file cannot be written to.
-     * @since 1.0
-     */
-    public boolean writeToFile(FileChannel filechannel) throws UnableToWriteLumpFileException {
-        return writeToFile(filechannel, 0);
-    }
-    
-    /**
-     * Writes the {@link Lump Lump} to a binary file at the specified position.
-     * @param filechannel the {@link java.nio.channels.FileChannel FileChannel} to write to.
-     * @param position the position in the {@link java.nio.channels.FileChannel FileChannel} 
-     * to begin writing at.
-     * @return true if the file has been successfully written to.
-     * @throws UnableToWriteLumpFileException if the specified file cannot be written to.
-     * @since 1.0
-     */
-    public boolean writeToFile(FileChannel filechannel, long position) throws UnableToWriteLumpFileException {
-        int oldpos = content.getPosition();
-        content.setPosition(0);
-        try {
-            filechannel.position(position);
-        }
-        catch(IOException e) {
-            throw new UnableToWriteLumpFileException("The specified position is out of bounds.", e);
-        }
-        try {
-            filechannel.write(content.getByteBuffer());
-        }
-        catch(IOException e) {
-            throw new UnableToWriteLumpFileException("The lump file could not be written.", e);
-        }
-        content.setPosition(oldpos);
-        return true;
-    }
-    
+
     /**
      * Returns the name of the {@link Lump Lump} by calling the {@link Lump#getName() getName()} 
      * method. Overrides {@link java.lang.Object java.lang.Object's} 

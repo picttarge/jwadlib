@@ -1,15 +1,22 @@
 # jwadlib 1.0.1
 
-Fork of an old jwadlib (1.0-Alpha). jwadlib WAD Library is a Java library for manipulating WAD files, the format made popular by Doom.
+Fork of an old jwadlib (1.0-Alpha).
+
+jwadlib WAD Library is a Java library for manipulating WAD files, the format made popular by Doom.
 
 
 # Changes from the original
 * Original: http://sourceforge.net/projects/jwadlib/ Copyright (C) 2008 Samuel "insertwackynamehere" Horwitz
 * Changed: https://github.com/picttarge/jwadlib Copyright (C) 2025 @picttarge
 
+
+* libGDX file handling
+* JDK 17 (libGDX 1.13.5 compatibility)
+* Removes some undesirable alpha features completely from the original project
+
 ## Changelog
 
-### 26 July 2025
+### 26 July 2025 @picttarge
 
 * Adds WadReader and support for libGDX file handling (FileHandle/Gdx.files.internal)
 * Removes Wad.equals()
