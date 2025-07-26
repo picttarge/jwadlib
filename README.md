@@ -23,7 +23,7 @@ jwadlib WAD Library is a Java library for manipulating WAD files, the format mad
 * Removes all write actions e.g. Wad.writeToFile()
 * Removes the writing of .bak files as a backup wad file and UnableToBackUpWADFileException
 * Removes "rw" (read-write) files access on RandomAccessFile, defaulting to "r" (read-only)
-
+* Removes unused methods and Exception classes
 
 # License
 GNU Library or Lesser General Public License version 2.0 (LGPLv2)
