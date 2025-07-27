@@ -168,12 +168,7 @@ public class Lump {
          * bytes but only has 0, it is still real. The content must be able to 
          * contain 0 bytes, no more no less, for it to be virtual.
          */
-        if(content.getCapacity() == 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return content.getCapacity() == 0;
     }
     
     /**

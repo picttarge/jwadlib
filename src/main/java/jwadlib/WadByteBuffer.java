@@ -55,7 +55,7 @@ public class WadByteBuffer {
      * @param buffersize the size, in bytes, to allocate for the buffer.
      * @since 1.0
      */
-    public WadByteBuffer(int buffersize) {
+    public WadByteBuffer(final int buffersize) {
         bytebuffer = ByteBuffer.allocate(buffersize);
         bytebuffer.order(ByteOrder.LITTLE_ENDIAN);
         length = 0;
@@ -71,7 +71,7 @@ public class WadByteBuffer {
      * the specified points.
      * @since 1.0
      */
-    public WadByteBuffer(FileChannel bufferchannel) throws UnableToReadWADFileException {
+    public WadByteBuffer(final FileChannel bufferchannel) throws UnableToReadWADFileException {
         this(bufferchannel, -1, 0);
     }
     
@@ -86,7 +86,7 @@ public class WadByteBuffer {
      * the specified points.
      * @since 1.0
      */
-    public WadByteBuffer(FileChannel bufferchannel, int bufferlength) throws UnableToReadWADFileException {
+    public WadByteBuffer(final FileChannel bufferchannel, final int bufferlength) throws UnableToReadWADFileException {
         this(bufferchannel, bufferlength, 0);
     }
     
@@ -103,18 +103,18 @@ public class WadByteBuffer {
      * the specified points.
      * @since 1.0
      */
-    public WadByteBuffer(FileChannel bufferchannel, int bufferlength, int position) throws UnableToReadWADFileException {
+    public WadByteBuffer(final FileChannel bufferchannel, int bufferlength, final int position) throws UnableToReadWADFileException {
         try {
             bufferchannel.position(position);
         }
-        catch(IOException e) {
+        catch(final IOException e) {
             throw new UnableToReadWADFileException("Position out of file bounds.", e);
         }
         if(bufferlength < 0) {
             try {
                 bufferlength = (int)bufferchannel.size();
             }
-            catch(IOException e) {
+            catch(final IOException e) {
                 throw new UnableToReadWADFileException("WAD file cannot be read.", e);
             }
         }
@@ -123,7 +123,7 @@ public class WadByteBuffer {
         try {
             bufferchannel.read(bytebuffer, position);
         }
-        catch(IOException e) {
+        catch(final IOException e) {
             throw new UnableToReadWADFileException("WAD file cannot be read.", e);
         }
         length = bufferlength;
@@ -137,7 +137,7 @@ public class WadByteBuffer {
      * {@link WadByteBuffer WadByteBuffer} from.
      * @since 1.0
      */
-    public WadByteBuffer(WadByteBuffer bytebuffer) {
+    public WadByteBuffer(final WadByteBuffer bytebuffer) {
         this(bytebuffer.getArray());
     }
     
@@ -147,7 +147,7 @@ public class WadByteBuffer {
      * from.
      * @since 1.0
      */
-    public WadByteBuffer(byte[] bytearray) {
+    public WadByteBuffer(final byte[] bytearray) {
         bytebuffer = ByteBuffer.wrap(bytearray);
         bytebuffer.order(ByteOrder.LITTLE_ENDIAN);
         length = bytearray.length;
@@ -163,7 +163,7 @@ public class WadByteBuffer {
      * @since 1.0
      */
     private byte[] getArray() {
-        byte[] temp;
+        final byte[] temp;
         if(bytebuffer.hasArray()) {
             temp = bytebuffer.array();
         }
@@ -196,8 +196,8 @@ public class WadByteBuffer {
      * the specified position.
      * @since 1.0
      */
-    public byte getByte(int index) {
-        byte temp = bytebuffer.get(index);
+    public byte getByte(final int index) {
+        final byte temp = bytebuffer.get(index);
         setPosition(index+1);
         return temp;
     }
@@ -210,7 +210,7 @@ public class WadByteBuffer {
      * @since 1.0
      */
     public ByteBuffer getByteBuffer() {
-        ByteBuffer temp = bytebuffer;
+        final ByteBuffer temp = bytebuffer;
         temp.position(0);
         return temp;
     }
@@ -228,9 +228,9 @@ public class WadByteBuffer {
      * to get.
      * @since 1.0
      */
-    public WadByteBuffer getWadByteBuffer(int offset, int length) {
-        byte[] temp = new byte[length];
-        int oldpos = bytebuffer.position();
+    public WadByteBuffer getWadByteBuffer(final int offset, final int length) {
+        final byte[] temp = new byte[length];
+        final int oldpos = bytebuffer.position();
         bytebuffer.get(temp, offset, length);
         bytebuffer.position(oldpos);
         return new WadByteBuffer(temp);
@@ -258,8 +258,8 @@ public class WadByteBuffer {
      * the specified position.
      * @since 1.0
      */
-    public short getShort(int index) {
-        short temp = bytebuffer.getShort(index);
+    public short getShort(final int index) {
+        final short temp = bytebuffer.getShort(index);
         setPosition(index+2);
         return temp;
     }
@@ -286,8 +286,8 @@ public class WadByteBuffer {
      * the specified position.
      * @since 1.0
      */
-    public int getInt(int index) {
-        int temp = bytebuffer.getInt(index);
+    public int getInt(final int index) {
+        final int temp = bytebuffer.getInt(index);
         setPosition(index+4);
         return temp;
     }
@@ -302,7 +302,7 @@ public class WadByteBuffer {
      * specified position.
      * @since 1.0
      */
-    public String getEightByteString(int index) {
+    public String getEightByteString(final int index) {
         setPosition(index);
         return getEightByteString();
     }
@@ -314,11 +314,11 @@ public class WadByteBuffer {
      * @since 1.0
      */
     public String getEightByteString() {
-        String temp = "";
+        final StringBuilder temp = new StringBuilder();
         for(int i=0; i<8; i++) {
-            temp = temp + (char)bytebuffer.get();
+            temp.append((char)bytebuffer.get());
         }
-        return temp;
+        return temp.toString();
     }
     
     /**
@@ -333,7 +333,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer put(byte b) throws BufferOverflowException, ReadOnlyBufferException {
+    public WadByteBuffer put(final byte b) throws BufferOverflowException, ReadOnlyBufferException {
         bytebuffer.put(b);
         length += 1;
         return this;
@@ -353,7 +353,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer put(int index, byte b) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer put(final int index, final byte b) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         bytebuffer.put(index, b);
         length += 1;
         setPosition(index+1);
@@ -374,7 +374,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer put(WadByteBuffer src) throws BufferOverflowException, IllegalArgumentException, ReadOnlyBufferException {
+    public WadByteBuffer put(final WadByteBuffer src) throws BufferOverflowException, IllegalArgumentException, ReadOnlyBufferException {
         bytebuffer.put(src.bytebuffer);
         length += src.getLength();
         return this;
@@ -392,7 +392,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putShort(short value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putShort(final short value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         bytebuffer.putShort(value);
         length += 2;
         return this;
@@ -412,7 +412,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putShort(int index, short value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putShort(final int index, final short value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         bytebuffer.putShort(index, value);
         length += 2;
         setPosition(index+2);
@@ -431,7 +431,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putInt(int value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putInt(final int value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         bytebuffer.putInt(value);
         length += 4;
         return this;
@@ -451,7 +451,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putInt(int index, int value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putInt(final int index, final int value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         bytebuffer.putInt(index, value);
         length += 4;
         setPosition(index+4);
@@ -472,7 +472,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putEightByteString(int index, String value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putEightByteString(final int index, final String value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         setPosition(index);
         return putEightByteString(value);
     }
@@ -489,7 +489,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putEightByteString(String value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putEightByteString(final String value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         return putEightByteString(value.toCharArray());
     }
     
@@ -506,7 +506,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putEightByteString(int index, char[] value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putEightByteString(final int index, final char[] value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         setPosition(index);
         return putEightByteString(value);
     }
@@ -523,7 +523,7 @@ public class WadByteBuffer {
      * be written to.
      * @since 1.0
      */
-    public WadByteBuffer putEightByteString(char[] value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
+    public WadByteBuffer putEightByteString(final char[] value) throws IndexOutOfBoundsException, ReadOnlyBufferException {
         for(int i=0; i<8; i++) {
             bytebuffer.put((byte)value[i]);
         }
@@ -568,7 +568,7 @@ public class WadByteBuffer {
      * than the current limit.
      * @since 1.0
      */
-    public WadByteBuffer setPosition(int index) throws IllegalArgumentException {
+    public WadByteBuffer setPosition(final int index) throws IllegalArgumentException {
         bytebuffer.position(index);
         return this;
     }
@@ -599,7 +599,7 @@ public class WadByteBuffer {
      * @throws java.io.IOException if the data cannot be written to the file.
      * @since 1.0
      */
-    public boolean writeToFile(FileChannel filechannel) throws IOException {
+    public boolean writeToFile(final FileChannel filechannel) throws IOException {
         return writeToFile(filechannel, filechannel.position());
     }
     
@@ -613,8 +613,8 @@ public class WadByteBuffer {
      * @throws java.io.IOException if the data cannot be written to the file.
      * @since 1.0
      */
-    public boolean writeToFile(FileChannel filechannel, long position) throws IOException {
-        int oldpos = bytebuffer.position();
+    public boolean writeToFile(final FileChannel filechannel, final long position) throws IOException {
+        final int oldpos = bytebuffer.position();
         bytebuffer.position(0);
         filechannel.position(position);
         filechannel.write(bytebuffer);
@@ -630,7 +630,7 @@ public class WadByteBuffer {
      * @return true if completed successfully.
      * @since 1.0
      */
-    public boolean alterBufferSize(int newsize) {
+    public boolean alterBufferSize(final int newsize) {
         ByteBuffer tempbuffer = bytebuffer;
         bytebuffer = ByteBuffer.allocate(newsize);
         bytebuffer.rewind();
@@ -658,8 +658,8 @@ public class WadByteBuffer {
             string = string.substring(0, 8);
         }
         else if(string.length() < 8) {
-            char temp[] = string.toCharArray();
-            char newtemp[] = new char[8];
+            final char[] temp = string.toCharArray();
+            final char[] newtemp = new char[8];
             for(int i=0; i<8; i++) {
                 if(i<temp.length) {
                     newtemp[i] = temp[i];
