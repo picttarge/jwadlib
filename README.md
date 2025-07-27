@@ -14,7 +14,38 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 
-[COPYING.LESSER](license/COPYING.LESSER)
+# Integration
+
+## Gradle
+
+Ensure your project's main build.gradle has jitpack.io:
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+
+Add to a module's build.gradle that needs this dependency:
+
+    implementation "com.github.picttarge:jwadlib:1.0.1"
+
+## Maven
+
+Add the jitpack repository:
+
+      <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+      </repositories>
+
+Add the dependency:
+
+	<dependency>
+		<groupId>com.github.picttarge</groupId>
+		<artifactId>jwadlib</artifactId>
+		<version>1.0.1</version>
+	</dependency>
 
 # Changes from the original
 * Original: http://sourceforge.net/projects/jwadlib/ Copyright (C) 2008 Samuel "insertwackynamehere" Horwitz
@@ -38,6 +69,8 @@ Lesser General Public License for more details.
 
 # License
 GNU Library or Lesser General Public License version 2.0 (LGPLv2)
+
+[COPYING.LESSER](license/COPYING.LESSER)
 
 # Original README.md text follows
 
